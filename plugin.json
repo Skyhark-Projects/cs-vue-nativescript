@@ -1,0 +1,10 @@
+{
+    "classes": {
+        "PagesManager": "vue/PagesManager"
+    },
+    
+    "cli": {
+        "ns-run": "Run NativeScript app on ios|android",
+        "ns-prepare": "Prepare the project to be runned on ios and/or android (ios|android, default both)"
+    }
+}
