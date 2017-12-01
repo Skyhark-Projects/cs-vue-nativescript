@@ -1,5 +1,25 @@
 import { mergePost } from '../common/init.js';
 
+const dialogs = require("ui/dialogs");
+
+class Event {
+    constructor(data) {
+        this.cancelable = true;
+        this.defaultPrevented = false;
+
+        for (var key in data)
+            this[key] = data[key];
+    }
+
+    preventDefault()  {
+        this.defaultPrevented = true;
+    }
+
+    isDefaultPrevented() {
+        return this.defaultPrevented;
+    }
+};
+
 class FormPoster
 {
     constructor()
@@ -14,40 +34,51 @@ class FormPoster
         };
     }
 
-    handleApiError(form, data)
+    handleApiError(form, e)
     {
-        /*ar msg = "An error occured while processing your request";
-        const err = data.error;
+        const result = e.error;
+        var msg   = "An error occured while processing your request";
 
-        if(typeof(err) == 'object' || typeof(err) == "array")
+        if(typeof(result) == 'object' || typeof(data) == "array")
         {
-            if(typeof(err.error) == 'string')
-                msg = err.error;
+            if(typeof(result.error) == 'string')
+                msg = result.error;
+            if(typeof(result.message) == 'string')
+                msg = result.message;
         }
-        else if(typeof(err) == "string")
-            msg = err;
+        else if(typeof(result) == "string") {
+            msg = data;
+        }
 
-        $.notify({ message: msg },{ type: 'danger' });*/
+        dialogs.alert({
+            title: "Error",
+            message: msg,
+            okButtonText: "Oke"
+        });
     }
 
-    handleApiSuccess(form, data)
+    handleApiSuccess(form, e)
     {
-        /*const that= $(form);
-        const msg = data.result;
+        const result = e.result;
+        var msg      = null;
+        
+        //if(form.attr('SuccessMessage'))
+        //   msg = form.attr('SuccessMessage');
 
-        if(that.attr('SuccessMessage'))
-           return $.notify(that.attr('SuccessMessage'), 'success');
-
-        if(typeof(msg) == 'string')
-            return $.notify(msg, 'success');
-
-        if(typeof(msg) == 'object')
+        if(typeof(result) === 'object')
         {
-            if(typeof(msg.result) == 'string')
-                return $.notify(msg.result, 'success');
+            if(typeof(result.result) === 'string')
+                msg = result.result;
+            if(typeof(result.message) === 'string')
+                msg = result.message;
         }
 
-        return $.notify(msg, 'Data successfully updated!');*/
+        if(msg !== null) {
+            dialogs.alert({
+                message: msg,
+                okButtonText: "Done"
+            });
+        }
     }
 
     handleApiPrepare(form, data)
@@ -69,38 +100,34 @@ class FormPoster
 
     trigger(elm, eventName, data)
     {
-        //try
-        //{
-        //    const secondName = eventName.replace(/-\S*/g, function(txt){ return txt.charAt(1).toUpperCase() + txt.substr(2).toLowerCase();});
+        var event;
 
-            /*if(secondName !== eventName)
+        try
+        {
+            const secondName = eventName.replace(/-\S*/g, function(txt){ return txt.charAt(1).toUpperCase() + txt.substr(2).toLowerCase();});
+
+            if(secondName !== eventName)
             {
-                if(!this.trigger(elm, secondName, data))
-                    return;
+                event = this.trigger(elm, secondName, data);
+                if(!event)
+                    return false;
+            } else {
+                event = new Event({
+                    eventName: eventName,
+                    type:      eventName,
+                    timeStamp: Date.now(),
+                    srcElement: elm,
+                    target:     elm
+                });
             }
 
             //------------------------------------------------------------------------
 
-            var event; // The custom event that will be created
-
-            if (document.createEvent) {
-                event = document.createEvent("HTMLEvents");
-                event.initEvent(eventName, true, true);
-            } else {
-                event = document.createEventObject();
-                event.eventType = eventName;
-            }
-
-            event.eventName = eventName;
-
             for(var key in data)
                 event[key] = data[key];
 
-            if (document.createEvent)
-                elm.dispatchEvent(event);
-            else
-                elm.fireEvent("on" + event.eventType, event);
-
+            elm.$emit(eventName, event);
+            
             if(event.defaultPrevented)
                 return false;
         }
@@ -112,14 +139,14 @@ class FormPoster
         try
         {
             if(this.events[eventName])
-                this.events[eventName].call(this, elm, data);
+                this.events[eventName].call(this, elm, event);
         }
         catch(e)
         {
             console.error(e);
         }
 
-        return true;*/
+        return event;
     }
 
     handleFormSubmit(elm)
