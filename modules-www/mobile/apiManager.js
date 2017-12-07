@@ -48,7 +48,7 @@ class ApiManager extends BaseManager
 
     socketConnect()
     {
-        console.log('Connect to socket');
+        /*console.log('Connect to socket');
         if (this.socket) {
             try {
                 this.socket.close();
@@ -71,12 +71,12 @@ class ApiManager extends BaseManager
         this.socket.onclose = function () {
             _this.socketConnected = false;
             _this.emitSocketClose();
-        };
+        };*/
     }
 
     base()
     {
-        return 'http://192.168.0.104:8080/' //ToDo
+        return 'http://192.168.2.114:8080/' //ToDo
     }
 
     //---------------------------------------------------------

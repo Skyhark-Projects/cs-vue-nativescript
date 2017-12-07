@@ -44,8 +44,6 @@ async function setup(platform) {
         addPlatform('ios');
     if(platform === 'android' || platform === null)
         addPlatform('android');
-
-    console.log('Preparation Done');
 }
 
 module.exports = function(platform) {
